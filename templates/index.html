@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}Home - School Management Portal{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="jumbotron bg-primary text-white rounded mb-5 p-5">
+    <div class="container text-center">
+        <h1 class="display-4">
+            <i class="fas fa-school me-3"></i>
+            Welcome to School Management Portal
+        </h1>
+        <p class="lead">Your one-stop solution for academic excellence and seamless school management</p>
+        {% if not request.session.get('user_id') %}
+            <div class="mt-4">
+                <a class="btn btn-light btn-lg me-3" href="/signup">
+                    <i class="fas fa-user-plus me-2"></i>
+                    Join Now
+                </a>
+                <a class="btn btn-outline-light btn-lg" href="/login">
+                    <i class="fas fa-sign-in-alt me-2"></i>
+                    Login
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="row mb-5">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center">
+                <div class="feature-icon bg-primary text-white rounded-circle mx-auto mb-3">
+                    <i class="fas fa-chart-line fa-2x"></i>
+                </div>
+                <h5 class="card-title">Student Performance</h5>
+                <p class="card-text">Track marks, attendance, and assignments in real-time. Get comprehensive insights into academic progress.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center">
+                <div class="feature-icon bg-success text-white rounded-circle mx-auto mb-3">
+                    <i class="fas fa-chalkboard-teacher fa-2x"></i>
+                </div>
+                <h5 class="card-title">Teacher Dashboard</h5>
+                <p class="card-text">Efficiently manage student data, upload marks, track attendance, and assign homework.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center">
+                <div class="feature-icon bg-warning text-white rounded-circle mx-auto mb-3">
+                    <i class="fas fa-cogs fa-2x"></i>
+                </div>
+                <h5 class="card-title">Administration</h5>
+                <p class="card-text">Manage notices, fee structures, and oversee the entire school operations from one platform.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Access Section -->
+{% if request.session.get('user_id') %}
+<div class="row">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-tachometer-alt me-2"></i>
+                    Quick Access
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    {% if request.session.get('role') == 'student' %}
+                        <div class="col-md-3">
+                            <a href="/student/dashboard" class="btn btn-outline-primary btn-lg w-100 mb-3">
+                                <i class="fas fa-tachometer-alt d-block mb-2"></i>
+                                Dashboard
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="/student/profile" class="btn btn-outline-info btn-lg w-100 mb-3">
+                                <i class="fas fa-user d-block mb-2"></i>
+                                Profile
+                            </a>
+                        </div>
+                    {% elif request.session.get('role') == 'teacher' %}
+                        <div class="col-md-3">
+                            <a href="/teacher/dashboard" class="btn btn-outline-primary btn-lg w-100 mb-3">
+                                <i class="fas fa-tachometer-alt d-block mb-2"></i>
+                                Dashboard
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="/teacher/students" class="btn btn-outline-info btn-lg w-100 mb-3">
+                                <i class="fas fa-users d-block mb-2"></i>
+                                Students
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="/teacher/add-marks" class="btn btn-outline-success btn-lg w-100 mb-3">
+                                <i class="fas fa-plus d-block mb-2"></i>
+                                Add Marks
+                            </a>
+                        </div>
+                    {% elif request.session.get('role') == 'authority' %}
+                        <div class="col-md-3">
+                            <a href="/authority/dashboard" class="btn btn-outline-primary btn-lg w-100 mb-3">
+                                <i class="fas fa-tachometer-alt d-block mb-2"></i>
+                                Dashboard
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="/authority/notices" class="btn btn-outline-info btn-lg w-100 mb-3">
+                                <i class="fas fa-bell d-block mb-2"></i>
+                                Notices
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="/authority/fee-structure" class="btn btn-outline-warning btn-lg w-100 mb-3">
+                                <i class="fas fa-money-bill-wave d-block mb-2"></i>
+                                Fee Structure
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Statistics Section -->
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-4">Why Choose Our Portal?</h2>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="stat-item">
+                        <h3 class="text-primary">1000+</h3>
+                        <p>Active Students</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-item">
+                        <h3 class="text-success">50+</h3>
+                        <p>Dedicated Teachers</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-item">
+                        <h3 class="text-warning">24/7</h3>
+                        <p>System Availability</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-item">
+                        <h3 class="text-info">100%</h3>
+                        <p>Data Security</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

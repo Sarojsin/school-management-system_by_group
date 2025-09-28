@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}Add Attendance - Teacher Dashboard{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-calendar-check me-2"></i>
+                    Mark Student Attendance
+                </h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" action="/teacher/add-attendance">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="student_id" class="form-label">
+                                <i class="fas fa-user me-1"></i>
+                                Select Student
+                            </label>
+                            <select class="form-control" id="student_id" name="student_id" required>
+                                <option value="">Choose a student...</option>
+                                {% for student in students %}
+                                <option value="{{ student.id }}">
+                                    {{ student.student_id }} - {{ student.first_name }} {{ student.last_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="subject" class="form-label">
+                                <i class="fas fa-book me-1"></i>
+                                Subject
+                            </label>
+                            <input type="text" class="form-control" id="subject" name="subject" 
+                                   placeholder="e.g. Mathematics" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="date" class="form-label">
+                                <i class="fas fa-calendar me-1"></i>
+                                Date
+                            </label>
+                            <input type="date" class="form-control" id="date" name="date" required>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="status" class="form-label">
+                                <i class="fas fa-check-circle me-1"></i>
+                                Attendance Status
+                            </label>
+                            <select class="form-control" id="status" name="status" required>
+                                <option value="">Select status...</option>
+                                <option value="present">Present</option>
+                                <option value="absent">Absent</option>
+                                <option value="late">Late</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Status Preview -->
+                    <div class="mb-4">
+                        <div class="alert alert-info" style="display: none;" id="status-preview">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <span id="preview-text">Select a status to see preview</span>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="/teacher/dashboard" class="btn btn-secondary me-md-2">
+                            <i class="fas fa-arrow-left me-1"></i>
+                            Back to Dashboard
+                        </a>
+                        <button type="submit" class="btn btn-info">
+                            <i class="fas fa-save me-2"></i>
+                            Save Attendance
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Quick Attendance for Multiple Students -->
+        <div class="card mt-4 border-0 shadow-sm">
+            <div class="card-header bg-light">
+                <h6 class="mb-0">
+                    <i class="fas fa-users me-1"></i>
+                    Quick Attendance (Coming Soon)
+                </h6>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-0">Mark attendance for multiple students at once with our batch attendance feature.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set today's date as default
+    document.getElementById('date').value = new Date().toISOString().split('T')[0];
+    
+    // Status preview functionality
+    const statusSelect = document.getElementById('status');
+    const statusPreview = document.getElementById('status-preview');
+    const previewText = document.getElementById('preview-text');
+    
+    statusSelect.addEventListener('change', function() {
+        const status = this.value;
+        if (status) {
+            statusPreview.style.display = 'block';
+            statusPreview.className = 'alert ' + getStatusClass(status);
+            previewText.innerHTML = getStatusMessage(status);
+        } else {
+            statusPreview.style.display = 'none';
+        }
+    });
+    
+    function getStatusClass(status) {
+        const classes = {
+            'present': 'alert-success',
+            'absent': 'alert-danger',
+            'late': 'alert-warning'
+        };
+        return classes[status] || 'alert-info';
+    }
+    
+    function getStatusMessage(status) {
+        const messages = {
+            'present': '<i class="fas fa-check-circle me-2"></i>Student marked as <strong>Present</strong>',
+            'absent': '<i class="fas fa-times-circle me-2"></i>Student marked as <strong>Absent</strong>',
+            'late': '<i class="fas fa-clock me-2"></i>Student marked as <strong>Late</strong>'
+        };
+        return messages[status] || 'Status selected';
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}Add Marks - Teacher Dashboard{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-plus-circle me-2"></i>
+                    Add Student Marks
+                </h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" action="/teacher/add-marks">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="student_id" class="form-label">
+                                <i class="fas fa-user me-1"></i>
+                                Select Student
+                            </label>
+                            <select class="form-control" id="student_id" name="student_id" required>
+                                <option value="">Choose a student...</option>
+                                {% for student in students %}
+                                <option value="{{ student.id }}">
+                                    {{ student.student_id }} - {{ student.first_name }} {{ student.last_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="subject" class="form-label">
+                                <i class="fas fa-book me-1"></i>
+                                Subject
+                            </label>
+                            <input type="text" class="form-control" id="subject" name="subject" 
+                                   placeholder="e.g. Mathematics" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="exam_type" class="form-label">
+                                <i class="fas fa-clipboard-list me-1"></i>
+                                Exam Type
+                            </label>
+                            <select class="form-control" id="exam_type" name="exam_type" required>
+                                <option value="">Select exam type...</option>
+                                <option value="quiz">Quiz</option>
+                                <option value="midterm">Mid Term</option>
+                                <option value="final">Final Exam</option>
+                                <option value="assignment">Assignment</option>
+                                <option value="project">Project</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="exam_date" class="form-label">
+                                <i class="fas fa-calendar me-1"></i>
+                                Exam Date
+                            </label>
+                            <input type="date" class="form-control" id="exam_date" name="exam_date" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="marks_obtained" class="form-label">
+                                <i class="fas fa-star me-1"></i>
+                                Marks Obtained
+                            </label>
+                            <input type="number" class="form-control" id="marks_obtained" name="marks_obtained" 
+                                   min="0" step="0.01" placeholder="85" required>
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label for="total_marks" class="form-label">
+                                <i class="fas fa-trophy me-1"></i>
+                                Total Marks
+                            </label>
+                            <input type="number" class="form-control" id="total_marks" name="total_marks" 
+                                   min="1" step="0.01" placeholder="100" required>
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label for="grade" class="form-label">
+                                <i class="fas fa-medal me-1"></i>
+                                Grade
+                            </label>
+                            <select class="form-control" id="grade" name="grade" required>
+                                <option value="">Select grade...</option>
+                                <option value="A+">A+</option>
+                                <option value="A">A</option>
+                                <option value="B+">B+</option>
+                                <option value="B">B</option>
+                                <option value="C+">C+</option>
+                                <option value="C">C</option>
+                                <option value="D">D</option>
+                                <option value="F">F</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="/teacher/dashboard" class="btn btn-secondary me-md-2">
+                            <i class="fas fa-arrow-left me-1"></i>
+                            Back to Dashboard
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>
+                            Save Marks
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-calculate grade based on percentage
+document.addEventListener('DOMContentLoaded', function() {
+    const marksObtained = document.getElementById('marks_obtained');
+    const totalMarks = document.getElementById('total_marks');
+    const gradeSelect = document.getElementById('grade');
+    
+    function calculateGrade() {
+        const obtained = parseFloat(marksObtained.value);
+        const total = parseFloat(totalMarks.value);
+        
+        if (obtained && total && total > 0) {
+            const percentage = (obtained / total) * 100;
+            let grade = 'F';
+            
+            if (percentage >= 90) grade = 'A+';
+            else if (percentage >= 80) grade = 'A';
+            else if (percentage >= 70) grade = 'B+';
+            else if (percentage >= 60) grade = 'B';
+            else if (percentage >= 50) grade = 'C+';
+            else if (percentage >= 40) grade = 'C';
+            else if (percentage >= 35) grade = 'D';
+            
+            gradeSelect.value = grade;
+        }
+    }
+    
+    marksObtained.addEventListener('input', calculateGrade);
+    totalMarks.addEventListener('input', calculateGrade);
+});
+</script>
+{% endblock %}

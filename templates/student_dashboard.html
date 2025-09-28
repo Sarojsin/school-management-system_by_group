@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard - School Management Portal{% endblock %}
+
+{% block content %}
+<!-- Welcome Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card bg-primary text-white border-0 shadow">
+            <div class="card-body">
+                <h2 class="mb-1">
+                    <i class="fas fa-tachometer-alt me-2"></i>
+                    Welcome, {{ student.first_name }} {{ student.last_name }}!
+                </h2>
+                <p class="mb-0 opacity-75">Student ID: {{ student.student_id }} | Grade: {{ student.grade }} - {{ student.section }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+                <div class="stat-icon bg-success text-white rounded-circle mx-auto mb-2">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h5 class="text-success">{{ marks|length }}</h5>
+                <p class="text-muted mb-0">Total Marks</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+                <div class="stat-icon bg-info text-white rounded-circle mx-auto mb-2">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <h5 class="text-info">{{ attendance|length }}</h5>
+                <p class="text-muted mb-0">Attendance Records</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+                <div class="stat-icon bg-warning text-white rounded-circle mx-auto mb-2">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <h5 class="text-warning">{{ assignments|length }}</h5>
+                <p class="text-muted mb-0">Assignments</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+                <div class="stat-icon bg-danger text-white rounded-circle mx-auto mb-2">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <h5 class="text-danger">{{ notices|length }}</h5>
+                <p class="text-muted mb-0">Active Notices</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Recent Marks -->
+    <div class="col-lg-6 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-bar me-2"></i>
+                    Recent Marks
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if marks %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Subject</th>
+                                    <th>Exam</th>
+                                    <th>Score</th>
+                                    <th>Grade</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for mark in marks[-5:] %}
+                                <tr>
+                                    <td>{{ mark.subject }}</td>
+                                    <td>{{ mark.exam_type.title() }}</td>
+                                    <td>{{ mark.marks_obtained }}/{{ mark.total_marks }}</td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if mark.grade in ['A', 'A+'] %}bg-success
+                                            {% elif mark.grade in ['B', 'B+'] %}bg-info
+                                            {% elif mark.grade in ['C', 'C+'] %}bg-warning
+                                            {% else %}bg-danger{% endif %}">
+                                            {{ mark.grade }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-chart-bar fa-3x mb-3"></i>
+                        <p>No marks recorded yet</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Attendance -->
+    <div class="col-lg-6 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar-check me-2"></i>
+                    Recent Attendance
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if attendance %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Subject</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for att in attendance[-5:] %}
+                                <tr>
+                                    <td>{{ att.date.strftime('%m/%d') }}</td>
+                                    <td>{{ att.subject }}</td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if att.status == 'present' %}bg-success
+                                            {% elif att.status == 'late' %}bg-warning
+                                            {% else %}bg-danger{% endif %}">
+                                            {{ att.status.title() }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-calendar-check fa-3x mb-3"></i>
+                        <p>No attendance records yet</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Assignments -->
+    <div class="col-lg-6 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-warning text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-tasks me-2"></i>
+                    Recent Assignments
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if assignments %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Subject</th>
+                                    <th>Due Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for assignment in assignments[-5:] %}
+                                <tr>
+                                    <td>{{ assignment.assignment_title }}</td>
+                                    <td>{{ assignment.subject }}</td>
+                                    <td>{{ assignment.due_date.strftime('%m/%d') }}</td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if assignment.status == 'submitted' %}bg-success
+                                            {% elif assignment.status == 'pending' %}bg-warning
+                                            {% else %}bg-danger{% endif %}">
+                                            {{ assignment.status.title() }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-tasks fa-3x mb-3"></i>
+                        <p>No assignments yet</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- School Notices -->
+    <div class="col-lg-6 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-bell me-2"></i>
+                    School Notices
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if notices %}
+                    {% for notice in notices[:5] %}
+                    <div class="notice-item mb-3 p-3 border-start border-3 
+                        {% if notice.priority == 'high' %}border-danger bg-light
+                        {% elif notice.priority == 'medium' %}border-warning bg-light
+                        {% else %}border-info bg-light{% endif %}">
+                        <h6 class="mb-1">{{ notice.title }}</h6>
+                        <p class="mb-1 text-muted small">{{ notice.content[:100] }}...</p>
+                        <small class="text-muted">
+                            <i class="fas fa-clock me-1"></i>
+                            {{ notice.created_at.strftime('%B %d, %Y') }}
+                        </small>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-bell fa-3x mb-3"></i>
+                        <p>No active notices</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

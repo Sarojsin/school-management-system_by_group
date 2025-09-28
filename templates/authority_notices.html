@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Notices - Authority Dashboard{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2>
+                <i class="fas fa-bell me-2 text-warning"></i>
+                Notice Management
+            </h2>
+            <a href="/authority/add-notice" class="btn btn-warning">
+                <i class="fas fa-plus me-2"></i>
+                Add New Notice
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Search and Filter -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="input-group">
+            <span class="input-group-text">
+                <i class="fas fa-search"></i>
+            </span>
+            <input type="text" class="form-control" placeholder="Search notices..." data-search="notices-table">
+        </div>
+    </div>
+    <div class="col-md-6">
+        <select class="form-control" id="priority-filter">
+            <option value="">All Priorities</option>
+            <option value="high">High Priority</option>
+            <option value="medium">Medium Priority</option>
+            <option value="low">Low Priority</option>
+        </select>
+    </div>
+</div>
+
+<!-- Notices List -->
+<div class="row">
+    <div class="col-12">
+        {% if notices %}
+            {% for notice in notices %}
+            <div class="card mb-3 border-0 shadow-sm notice-card" data-priority="{{ notice.priority }}">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="d-flex align-items-start">
+                                <div class="priority-indicator me-3 
+                                    {% if notice.priority == 'high' %}bg-danger
+                                    {% elif notice.priority == 'medium' %}bg-warning
+                                    {% else %}bg-info{% endif %}">
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h5 class="card-title mb-2">{{ notice.title }}</h5>
+                                    <p class="card-text text-muted">{{ notice.content[:200] }}{% if notice.content|length > 200 %}...{% endif %}</p>
+                                    <div class="notice-meta">
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock me-1"></i>
+                                            Created: {{ notice.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                                        </small>
+                                        {% if notice.expires_at %}
+                                        <small class="text-muted ms-3">
+                                            <i class="fas fa-calendar-times me-1"></i>
+                                            Expires: {{ notice.expires_at.strftime('%B %d, %Y') }}
+                                        </small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <div class="notice-badges mb-2">
+                                <span class="badge 
+                                    {% if notice.priority == 'high' %}bg-danger
+                                    {% elif notice.priority == 'medium' %}bg-warning
+                                    {% else %}bg-info{% endif %} me-1">
+                                    {{ notice.priority.title() }}
+                                </span>
+                                <span class="badge bg-secondary">{{ notice.target_audience.title() }}</span>
+                                <span class="badge {% if notice.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                                    {% if notice.is_active %}Active{% else %}Inactive{% endif %}
+                                </span>
+                            </div>
+                            <div class="notice-actions">
+                                <form method="post" action="/authority/toggle-notice/{{ notice.id }}" class="d-inline">
+                                    <button type="submit" class="btn btn-sm {% if notice.is_active %}btn-outline-secondary{% else %}btn-outline-success{% endif %} me-1">
+                                        <i class="fas {% if notice.is_active %}fa-pause{% else %}fa-play{% endif %}"></i>
+                                        {% if notice.is_active %}Deactivate{% else %}Activate{% endif %}
+                                    </button>
+                                </form>
+                                <button class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#editModal{{ notice.id }}">
+                                    <i class="fas fa-edit"></i>
+                                    Edit
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteNotice('{{ notice.id }}')" data-confirm="Are you sure you want to delete this notice?">
+                                    <i class="fas fa-trash"></i>
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-bell fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No Notices Found</h5>
+                    <p class="text-muted">Create your first notice to communicate with students and teachers.</p>
+                    <a href="/authority/add-notice" class="btn btn-warning">
+                        <i class="fas fa-plus me-2"></i>
+                        Create First Notice
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+                <div class="stat-icon bg-success text-white rounded-circle mx-auto mb-2">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h4 class="text-success">{{ notices|selectattr('is_active')|list|length }}</h4>
+                <p class="text-muted mb-0">Active Notices</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+                <div class="stat-icon bg-danger text-white rounded-circle mx-auto mb-2">
+                    <i class="fas fa-exclamation"></i>
+                </div>
+                <h4 class="text-danger">{{ notices|selectattr('priority', 'eq', 'high')|list|length }}</h4>
+                <p class="text-muted mb-0">High Priority</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+                <div class="stat-icon bg-info text-white rounded-circle mx-auto mb-2">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h4 class="text-info">{{ notices|selectattr('target_audience', 'eq', 'all')|list|length }}</h4>
+                <p class="text-muted mb-0">For Everyone</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+                <div class="stat-icon bg-warning text-white rounded-circle mx-auto mb-2">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <h4 class="text-warning">{{ notices|length }}</h4>
+                <p class="text-muted mb-0">Total Notices</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Priority filter functionality
+    const priorityFilter = document.getElementById('priority-filter');
+    const noticeCards = document.querySelectorAll('.notice-card');
+    
+    priorityFilter.addEventListener('change', function() {
+        const selectedPriority = this.value;
+        
+        noticeCards.forEach(function(card) {
+            const cardPriority = card.getAttribute('data-priority');
+            if (!selectedPriority || cardPriority === selectedPriority) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+});
+
+function deleteNotice(noticeId) {
+    if (confirm('Are you sure you want to delete this notice? This action cannot be undone.')) {
+        // In a real application, this would make an AJAX call to delete the notice
+        window.location.href = `/authority/delete-notice/${noticeId}`;
+    }
+}
+</script>
+
+<style>
+.priority-indicator {
+    width: 4px;
+    height: 60px;
+    border-radius: 2px;
+}
+
+.notice-card {
+    transition: all 0.2s ease;
+}
+
+.notice-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.notice-meta {
+    border-top: 1px solid #dee2e6;
+    padding-top: 10px;
+    margin-top: 10px;
+}
+
+.notice-badges .badge {
+    font-size: 0.75rem;
+}
+</style>
+{% endblock %}
+

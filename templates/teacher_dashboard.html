@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}Teacher Dashboard - School Management Portal{% endblock %}
+
+{% block content %}
+<!-- Welcome Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card bg-success text-white border-0 shadow">
+            <div class="card-body">
+                <h2 class="mb-1">
+                    <i class="fas fa-chalkboard-teacher me-2"></i>
+                    Welcome, {{ teacher.first_name }} {{ teacher.last_name }}!
+                </h2>
+                <p class="mb-0 opacity-75">Teacher ID: {{ teacher.teacher_id }} | Subjects: {{ teacher.subjects }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <a href="/teacher/add-marks" class="text-decoration-none">
+            <div class="card border-0 shadow-sm h-100 hover-card">
+                <div class="card-body text-center">
+                    <div class="action-icon bg-primary text-white rounded-circle mx-auto mb-3">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    <h6 class="text-primary">Add Marks</h6>
+                    <p class="text-muted small mb-0">Upload student exam results</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <a href="/teacher/add-attendance" class="text-decoration-none">
+            <div class="card border-0 shadow-sm h-100 hover-card">
+                <div class="card-body text-center">
+                    <div class="action-icon bg-info text-white rounded-circle mx-auto mb-3">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <h6 class="text-info">Mark Attendance</h6>
+                    <p class="text-muted small mb-0">Record student attendance</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <a href="/teacher/add-assignment" class="text-decoration-none">
+            <div class="card border-0 shadow-sm h-100 hover-card">
+                <div class="card-body text-center">
+                    <div class="action-icon bg-warning text-white rounded-circle mx-auto mb-3">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <h6 class="text-warning">Add Assignment</h6>
+                    <p class="text-muted small mb-0">Create new assignments</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <a href="/teacher/students" class="text-decoration-none">
+            <div class="card border-0 shadow-sm h-100 hover-card">
+                <div class="card-body text-center">
+                    <div class="action-icon bg-secondary text-white rounded-circle mx-auto mb-3">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h6 class="text-secondary">View Students</h6>
+                    <p class="text-muted small mb-0">Manage student list</p>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Students Overview -->
+    <div class="col-lg-6 mb-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-users me-2"></i>
+                    Students Overview
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if students %}
+                    <div class="mb-3">
+                        <span class="badge bg-primary fs-6">Total Students: {{ students|length }}</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>Name</th>
+                                    <th>Grade</th>
+                                    <th>Section</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in students[:10] %}
+                                <tr>
+                                    <td>{{ student.student_id }}</td>
+                                    <td>{{ student.first_name }} {{ student.last_name }}</td>
+                                    <td>{{ student.grade }}</td>
+                                    <td>{{ student.section }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% if students|length > 10 %}
+                        <div class="text-center">
+                            <a href="/teacher/students" class="btn btn-outline-primary">View All Students</a>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-users fa-3x mb-3"></i>
+                        <p>No students registered yet</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activities -->
+    <div class="col-lg-6 mb-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-history me-2"></i>
+                    Recent Activities
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="activity-list">
+                    {% if recent_marks %}
+                        <h6 class="text-success mb-2">
+                            <i class="fas fa-chart-bar me-1"></i>
+                            Recent Marks Added
+                        </h6>
+                        {% for mark in recent_marks[:3] %}
+                        <div class="activity-item mb-3 p-2 bg-light rounded">
+                            <small class="text-muted">
+                                Added {{ mark.subject }} marks ({{ mark.marks_obtained }}/{{ mark.total_marks }}) 
+                                on {{ mark.created_at.strftime('%B %d, %Y') }}
+                            </small>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if recent_attendance %}
+                        <h6 class="text-info mb-2 mt-3">
+                            <i class="fas fa-calendar-check me-1"></i>
+                            Recent Attendance
+                        </h6>
+                        {% for att in recent_attendance[:3] %}
+                        <div class="activity-item mb-3 p-2 bg-light rounded">
+                            <small class="text-muted">
+                                Marked attendance for {{ att.subject }} 
+                                on {{ att.created_at.strftime('%B %d, %Y') }}
+                            </small>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if not recent_marks and not recent_attendance %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-history fa-3x mb-3"></i>
+                            <p>No recent activities</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+                <div class="stat-icon bg-success text-white rounded-circle mx-auto mb-2">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h4 class="text-success">{{ recent_marks|length }}</h4>
+                <p class="text-muted mb-0">Marks Uploaded</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+                <div class="stat-icon bg-info text-white rounded-circle mx-auto mb-2">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <h4 class="text-info">{{ recent_attendance|length }}</h4>
+                <p class="text-muted mb-0">Attendance Records</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+                <div class="stat-icon bg-primary text-white rounded-circle mx-auto mb-2">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h4 class="text-primary">{{ students|length }}</h4>
+                <p class="text-muted mb-0">Total Students</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

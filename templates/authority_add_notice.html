@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}Add Notice - Authority Dashboard{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-warning text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-plus-circle me-2"></i>
+                    Create New Notice
+                </h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" action="/authority/add-notice">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">
+                            <i class="fas fa-heading me-1"></i>
+                            Notice Title
+                        </label>
+                        <input type="text" class="form-control" id="title" name="title" 
+                               placeholder="e.g. Upcoming Parent-Teacher Meeting" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="content" class="form-label">
+                            <i class="fas fa-align-left me-1"></i>
+                            Notice Content
+                        </label>
+                        <textarea class="form-control" id="content" name="content" rows="6" 
+                                  placeholder="Write the detailed notice content here..." required></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="priority" class="form-label">
+                                <i class="fas fa-exclamation-circle me-1"></i>
+                                Priority Level
+                            </label>
+                            <select class="form-control" id="priority" name="priority" required>
+                                <option value="">Select priority...</option>
+                                <option value="low">Low - General Information</option>
+                                <option value="medium">Medium - Important Update</option>
+                                <option value="high">High - Urgent Notice</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="target_audience" class="form-label">
+                                <i class="fas fa-users me-1"></i>
+                                Target Audience
+                            </label>
+                            <select class="form-control" id="target_audience" name="target_audience" required>
+                                <option value="">Select audience...</option>
+                                <option value="all">All - Students, Teachers & Staff</option>
+                                <option value="students">Students Only</option>
+                                <option value="teachers">Teachers Only</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="expires_at" class="form-label">
+                            <i class="fas fa-calendar-times me-1"></i>
+                            Expiry Date (Optional)
+                        </label>
+                        <input type="date" class="form-control" id="expires_at" name="expires_at">
+                        <div class="form-text">Leave blank if the notice should remain active indefinitely.</div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="/authority/dashboard" class="btn btn-secondary me-md-2">
+                            <i class="fas fa-arrow-left me-1"></i>
+                            Back to Dashboard
+                        </a>
+                        <button type="submit" class="btn btn-warning text-white">
+                            <i class="fas fa-bell me-2"></i>
+                            Publish Notice
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Notice Preview -->
+        <div class="card mt-4 border-0 shadow-sm">
+            <div class="card-header bg-light">
+                <h6 class="mb-0">
+                    <i class="fas fa-eye me-1"></i>
+                    Live Preview
+                </h6>
+            </div>
+            <div class="card-body">
+                <div id="notice-preview" class="notice-item p-3 border-start border-3 border-info bg-light">
+                    <h6 class="mb-1" id="preview-title">Notice Title Will Appear Here</h6>
+                    <p class="mb-2 text-muted" id="preview-content">Notice content will be displayed here as you type...</p>
+                    <small class="text-muted">
+                        <i class="fas fa-clock me-1"></i>
+                        <span id="preview-date"></span>
+                        <span class="badge bg-info ms-2" id="preview-priority">Priority</span>
+                        <span class="badge bg-secondary ms-1" id="preview-audience">Audience</span>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Live preview functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const titleInput = document.getElementById('title');
+    const contentInput = document.getElementById('content');
+    const prioritySelect = document.getElementById('priority');
+    const audienceSelect = document.getElementById('target_audience');
+    
+    const previewTitle = document.getElementById('preview-title');
+    const previewContent = document.getElementById('preview-content');
+    const previewPriority = document.getElementById('preview-priority');
+    const previewAudience = document.getElementById('preview-audience');
+    const previewDate = document.getElementById('preview-date');
+    const previewContainer = document.getElementById('notice-preview');
+    
+    // Set current date
+    previewDate.textContent = new Date().toLocaleDateString('en-US', { 
+        year: 'numeric', month: 'long', day: 'numeric' 
+    });
+    
+    function updatePreview() {
+        previewTitle.textContent = titleInput.value || 'Notice Title Will Appear Here';
+        previewContent.textContent = contentInput.value || 'Notice content will be displayed here as you type...';
+        
+        if (prioritySelect.value) {
+            previewPriority.textContent = prioritySelect.value.charAt(0).toUpperCase() + prioritySelect.value.slice(1);
+            previewPriority.className = 'badge ms-2 ' + 
+                (prioritySelect.value === 'high' ? 'bg-danger' : 
+                 prioritySelect.value === 'medium' ? 'bg-warning' : 'bg-info');
+            
+            previewContainer.className = 'notice-item p-3 border-start border-3 bg-light ' +
+                (prioritySelect.value === 'high' ? 'border-danger' : 
+                 prioritySelect.value === 'medium' ? 'border-warning' : 'border-info');
+        }
+        
+        if (audienceSelect.value) {
+            previewAudience.textContent = audienceSelect.options[audienceSelect.selectedIndex].text.split(' - ')[0];
+        }
+    }
+    
+    titleInput.addEventListener('input', updatePreview);
+    contentInput.addEventListener('input', updatePreview);
+    prioritySelect.addEventListener('change', updatePreview);
+    audienceSelect.addEventListener('change', updatePreview);
+});
+</script>
+{% endblock %}
